@@ -8,6 +8,7 @@ arrayOfSigns = ['/','*','-','+'];
 dotBoolean = false;
 signBoolean = false;
 text = "";
+resultBoolean = false;
 
 constructor(props) {
   super(props);
@@ -15,15 +16,20 @@ constructor(props) {
 }
 
 onPressBuildResult(){
+  this.dotBoolean = false;
+  this.resultBoolean = true;
   if (this.state.result == "") {
     this.setState({result: ""})
+  }
+  else if (this.state.result == "error") {
+    this.setState({result: this.state.result});
   }
   else if(this.signBoolean == true){
     this.setState({result : eval(this.state.result).toString()})
   }
-
-  if(this.state.result.includes(this.text)){
+  if(this.text != "" && this.state.result.includes(this.text)){
     this.setState({result: "error"});
+    console.log(`${this.text}`)
   }
 }
 
@@ -31,6 +37,14 @@ onPressDisplayNumber(button) {
   this.signBoolean = true;
   if(button != '.'){
     this.setState({result: this.state.result + `${button}`})
+  }
+
+  if (this.resultBoolean == true && button != '.') {
+    this.setState({result: `${button}`});
+    this.resultBoolean = false;
+  } else if(this.resultBoolean == true && button == '.') {
+    this.setState({result: '0.'});
+    this.resultBoolean = false;
   }
   
   else if(button == '.' && this.dotBoolean == false){
@@ -57,8 +71,15 @@ onPressDisplayNumber(button) {
     }
   }
 
+  if(button == '0' && this.state.result[this.state.result.length-1] == 0 && (this.state.result[this.state.result.length-2] == '-' || this.state.result[this.state.result.length-2] == '+' || this.state.result[this.state.result.length-2] == '/' || this.state.result[this.state.result.length-2] == '*')){
+    this.setState({ result: this.state.result});
+  } else if(button!= '0' && button != '.' && this.state.result[this.state.result.length-1] == 0 && (this.state.result[this.state.result.length-2] == '-' || this.state.result[this.state.result.length-2] == '+' || this.state.result[this.state.result.length-2] == '/' || this.state.result[this.state.result.length-2] == '*')) {
+    this.setState({result: this.state.result.substring(0,this.state.result.length-1) + `${button}`});
+   } 
+
   if (this.state.result[this.state.result.length-1] == '/' && button == 0) {
     this.text = this.state.result[this.state.result.length-1] + button.toString();
+    console.log(this.text);
   }
 
   if(this.state.result == "error" && button!= '.') {
@@ -68,6 +89,11 @@ onPressDisplayNumber(button) {
 
 onPressDisplaySign(button) {
   this.signBoolean = false;
+  this.dotBoolean = false;
+  if(this.resultBoolean == true && this.state.result != "error") {
+    this.setState({result: this.state.result + `${button}`});
+    this.resultBoolean = false;
+  }
   if( this.state.result != "" && this.state.result != "error"){
     if(this.state.result[this.state.result.length-1] == '.'){
     this.setState({result: this.state.result.substring(0,this.state.result.length-1) + `${button}`});
@@ -105,8 +131,11 @@ onPressSubstring() {
 }
 
 negativeNumbers() {
-  if (this.state.result != "" && this.state.result != "error") {
+  if (this.state.result != "" && this.state.result != "error" && !this.state.result.includes(this.text) && this.signBoolean == true) {
     this.setState({result : (0 - eval(this.state.result)).toString()});
+  }
+  else if (this.state.result.includes(this.text) && this.text != "") {
+    this.setState({result: "error"});
   }
 }
 
@@ -122,37 +151,37 @@ render(){
   
   <View style={styles.numberButtonsContainer}>
     <TouchableOpacity onPress={() => this.onPressClear()} style={styles.numberButtons}>
-    <Text style={{color: '#F86F6F', fontSize: 20}}>
+    <Text style={{color: '#F86F6F', fontSize: 30}}>
       C
     </Text>
     </TouchableOpacity>
 
     <TouchableOpacity onPress={() => this.onPressSubstring()} style={styles.numberButtons}>
-    <Text style={{color: '#F86F6F', fontSize: 20}}>
+    <Text style={{color: '#F86F6F', fontSize: 30}}>
       CE
     </Text>
     </TouchableOpacity>
 
     <TouchableOpacity onPress={() => this.negativeNumbers()} style={styles.numberButtons}>
-    <Text style={{color: '#F86F6F', fontSize: 20}}>
+    <Text style={{color: '#F86F6F', fontSize: 30}}>
       +/-
     </Text>
     </TouchableOpacity>
 
     {this.arrayOfNumbers.map((value, index)=> (
     <TouchableOpacity onPress={() => this.onPressDisplayNumber(value)} style={styles.numberButtons} key={index}>
-      <Text style={{color: '#4BCEA9', fontSize: 20}}>
+      <Text style={{color: '#4BCEA9', fontSize: 30}}>
         {value}
       </Text>
     </TouchableOpacity>))}
 
     <TouchableOpacity onPress={() => this.onPressDisplayNumber(`0`)} style={{width: '65%', height: '19%', backgroundColor: '#1D2E3E', marginRight: '1%', marginBottom:'1%', justifyContent:'center', alignItems: 'center'}}>
-      <Text style={{color: '#4BCEA9', fontSize: 20}}>
+      <Text style={{color: '#4BCEA9', fontSize: 30}}>
         0
       </Text>
     </TouchableOpacity>
     <TouchableOpacity onPress={() => this.onPressDisplayNumber(`.`)} style={styles.numberButtons}>
-      <Text style={{color: '#4BCEA9', fontSize: 20}}>
+      <Text style={{color: '#4BCEA9', fontSize: 30}}>
         .
       </Text>
     </TouchableOpacity>
@@ -161,13 +190,13 @@ render(){
   <View style={styles.signButtonsContainer}>
     {this.arrayOfSigns.map((value,index) => (
       <TouchableOpacity onPress={() => this.onPressDisplaySign(value)} style={styles.signButtons} key={index}>
-        <Text style={{color: '#172533', fontSize: 20}}>
+        <Text style={{color: '#172533', fontSize: 30}}>
           {value}
         </Text>
       </TouchableOpacity>
     ))}
     <TouchableOpacity onPress={() => this.onPressBuildResult()} style={{width: '100%', height: '19%', marginRight: '1%', marginTop: '2%', marginBottom: '0.3%', backgroundColor: '#4BCEA9', justifyContent:'center', alignItems: 'center'}}>
-      <Text style={{color: '#172533', fontSize: 20}}>
+      <Text style={{color: '#172533', fontSize: 30}}>
         =
       </Text>
     </TouchableOpacity>
