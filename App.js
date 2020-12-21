@@ -40,29 +40,30 @@ onPressBuildResult(){
 onPressDisplayNumber(button) {
   this.signBoolean = true;
   
-  
   if(button != '.' ){
     this.setState({result: this.state.result + `${button}`})
   }
   if(this.continueBoolean == true && (this.state.result[this.state.result.length-1] == '+' || this.state.result[this.state.result.length-1] == '-' || this.state.result[this.state.result.length-1] == '*' || this.state.result[this.state.result.length-1] == '/' )) {
-    console.log(`qwer + ${this.state.result}`)
-    //this.setState((prevState) => ({result : prevState.result + `${button}`}))
     this.setState({result: this.state.result + `${button}`})
-    console.log(`button + ${button}`)
-    console.log(`blabla + ${this.state.result}`)
     this.continueBoolean == false
   }
   else if (this.resultBoolean == true && button != '.' ) {
     this.setState({result: `${button}`});
     this.resultBoolean = false;
-  } else if(this.resultBoolean == true && button == '.') {
+  } else if(this.resultBoolean == true && button == '.' && this.state.result.includes('.')) {
     this.setState({result: '0.'});
     this.resultBoolean = false;
+  }else if(this.resultBoolean == true && button == '.' && !this.state.result.includes('.')) {
+    this.setState({result: this.state.result + `${button}`});
+    this.resultBoolean = false;
+    this.dotBoolean = true;
+    console.log('gjhkl;lkjhg')
   }
   
   else if(button == '.' && this.dotBoolean == false){
-    this.setState({result: this.state.result + `${button}`});
+    console.log(this.dotBoolean)
     this.dotBoolean = true;
+    this.setState({result: this.state.result + `${button}`});
     if(this.state.result == "") {
       this.setState({result: "0."});
     }
