@@ -7,8 +7,9 @@ arrayOfNumbers = [7,8,9,4,5,6,1,2,3];
 arrayOfSigns = ['/','*','-','+'];
 dotBoolean = false;
 signBoolean = false;
-text = "";
 resultBoolean = false;
+res = "";
+continueBoolean = false;
 
 constructor(props) {
   super(props);
@@ -18,28 +19,40 @@ constructor(props) {
 onPressBuildResult(){
   this.dotBoolean = false;
   this.resultBoolean = true;
-  if (this.state.result == "") {
+  if (this.state.result == "" ) {
     this.setState({result: ""})
   }
-  else if (this.state.result == "error") {
-    this.setState({result: this.state.result});
-  }
   else if(this.signBoolean == true){
-    this.setState({result : eval(this.state.result).toString()})
+    this.res = eval(this.state.result).toString()
+    if(this.res == "Infinity" || this.res == "-Infinity"){
+    this.setState({result : "error"})
+    } else {
+      this.setState({result : this.res})
+    }
   }
-  if(this.text != "" && this.state.result.includes(this.text)){
-    this.setState({result: "error"});
-    console.log(`${this.text}`)
+  else if(this.signBoolean == false) {
+    this.continueBoolean = true;
+    this.setState({result: this.state.result})
+    console.log(this.state.result)
   }
 }
 
 onPressDisplayNumber(button) {
   this.signBoolean = true;
-  if(button != '.'){
+  
+  
+  if(button != '.' ){
     this.setState({result: this.state.result + `${button}`})
   }
-
-  if (this.resultBoolean == true && button != '.') {
+  if(this.continueBoolean == true && (this.state.result[this.state.result.length-1] == '+' || this.state.result[this.state.result.length-1] == '-' || this.state.result[this.state.result.length-1] == '*' || this.state.result[this.state.result.length-1] == '/' )) {
+    console.log(`qwer + ${this.state.result}`)
+    //this.setState((prevState) => ({result : prevState.result + `${button}`}))
+    this.setState({result: this.state.result + `${button}`})
+    console.log(`button + ${button}`)
+    console.log(`blabla + ${this.state.result}`)
+    this.continueBoolean == false
+  }
+  else if (this.resultBoolean == true && button != '.' ) {
     this.setState({result: `${button}`});
     this.resultBoolean = false;
   } else if(this.resultBoolean == true && button == '.') {
@@ -77,11 +90,6 @@ onPressDisplayNumber(button) {
     this.setState({result: this.state.result.substring(0,this.state.result.length-1) + `${button}`});
    } 
 
-  if (this.state.result[this.state.result.length-1] == '/' && button == 0) {
-    this.text = this.state.result[this.state.result.length-1] + button.toString();
-    console.log(this.text);
-  }
-
   if(this.state.result == "error" && button!= '.') {
     this.setState({result: `${button}`});
   }
@@ -90,7 +98,7 @@ onPressDisplayNumber(button) {
 onPressDisplaySign(button) {
   this.signBoolean = false;
   this.dotBoolean = false;
-  if(this.resultBoolean == true && this.state.result != "error") {
+  if(this.resultBoolean == true && this.state.result != "" && this.state.result != "error") {
     this.setState({result: this.state.result + `${button}`});
     this.resultBoolean = false;
   }
@@ -131,8 +139,14 @@ onPressSubstring() {
 }
 
 negativeNumbers() {
-  if (this.state.result != "" && this.state.result != "error" && !this.state.result.includes(this.text) && this.signBoolean == true) {
-    this.setState({result : (0 - eval(this.state.result)).toString()});
+  console.log(this.signBoolean)
+  if (this.state.result != "" && this.state.result != "error" &&  this.signBoolean == true) {
+    this.result = eval(this.state.result).toString();
+    if(this.result == "Infinity" || this.result =="-Infinity"){
+      this.setState({result : "error"});
+    } else {
+      this.setState({result : (0 - this.result)});
+    }
   }
   else if (this.state.result.includes(this.text) && this.text != "") {
     this.setState({result: "error"});
